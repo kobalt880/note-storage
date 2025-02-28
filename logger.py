@@ -19,6 +19,7 @@ def create_note(author):
     importance = input("важность данной заметки: ")
     type = input("какой тип у этой заметки?: ")
 
+#++++++++++++++++++++++++++
     note = f"""
 --------------------------
 {name}
@@ -29,12 +30,14 @@ def create_note(author):
 тип заметки: {type}
 автор: {author}
 дата: {date}
-"""
-    
+"""  #++++++++++++++++++++++++++
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>
     print('\n'*30 + f"""
 ваша заметка:
 {note}
-""")
+""")  #>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
     inp = input("сохранить?\n 1. да\n 2. нет\n>> ")
 
@@ -44,5 +47,15 @@ def create_note(author):
         inp = input(">> ")
 
     if inp == "1":
-        with open(f"notes\\{author}_notes.txt", "a") as f:
+        with open(f"notes\\{author}_notes.txt", "a", encoding="utf-8") as f:
             f.write(note[1:])
+
+def create_user():
+    with open("users.txt", "r+", encoding="utf-8") as f:
+        name = input("введите имя пользователя: ")
+
+        if f.read().find(name) == -1:
+            f.write(name + '\n')
+            print("успешно сохранено!")
+        else:
+            print("данное имя пользователя уже занято")
