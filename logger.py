@@ -190,4 +190,28 @@ def redact_note(user):
     except FileNotFoundError:
         print("у вас еще нет заметок")
 
-redact_note("шагоход")
+def delete_note(user):
+    try:
+        with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
+            name = input("введите имя заметки: ")
+
+            text = f.read().split("--------------------------")
+            notes = []
+
+            for e in text:
+                notes.append("--------------------------\n" + '\n'.join(e.split('\n'))[1:])
+
+            for e in notes:
+                if e.split('\n')[1] == name:
+                    with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
+                        text = f.read().replace(e, "")
+
+                    with open(f"notes\\{user}_notes.txt", "w", encoding="utf-8") as f:
+                        f.write(text)
+
+                    print("заметка успешно удалена")
+                    break
+            else:
+                print("заметка не найдена")
+    except FileNotFoundError:
+        print("у вас еще нет заметок")
