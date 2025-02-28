@@ -135,5 +135,25 @@ def note_list(user):
 
             for i in range(1, len(notes)):
                 print(f"{i}. " + notes[i].split("\n")[0])
-    except:
+    except FileNotFoundError:
+        print("у вас еще нет заметок")
+
+def find_note(user):
+    try:
+        with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
+            name = input("введите имя заметки: ")
+
+            text = f.read().split("--------------------------")
+            notes = []
+
+            for e in text:
+                notes.append('\n'.join(e.split('\n'))[1:])
+
+            for e in notes:
+                if e.split('\n')[0] == name:
+                    print('\n' + e)
+                    break
+            else:
+                print("заметка не найдена")
+    except FileNotFoundError:
         print("у вас еще нет заметок")
