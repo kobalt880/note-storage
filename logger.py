@@ -121,3 +121,19 @@ def delete_user():
         try:
             os.remove(f"notes\\{name}_notes.txt")
         except: pass
+
+def note_list(user):
+    try:    
+        with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
+            text = f.read().split("--------------------------")
+            notes = []
+
+            for e in text:
+                notes.append('\n'.join(e.split('\n'))[1:])
+
+            print("список ваших заметок:")
+
+            for i in range(1, len(notes)):
+                print(f"{i}. " + notes[i].split("\n")[0])
+    except:
+        print("у вас еще нет заметок")
