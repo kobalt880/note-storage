@@ -59,3 +59,8 @@ def create_user():
             print("успешно сохранено!")
         else:
             print("данное имя пользователя уже занято")
+
+def list_of_users():
+    with open("users.txt", "r", encoding="utf-8") as f:
+        print("список доступных пользоваелей:\n" + f.read()[:-1])
+list_of_users()
