@@ -1,4 +1,5 @@
 import datetime as d
+import os
 
 def create_note(author):
     date = str(d.datetime.now()).split(".")[0]
@@ -63,4 +64,39 @@ def create_user():
 def list_of_users():
     with open("users.txt", "r", encoding="utf-8") as f:
         print("список доступных пользоваелей:\n" + f.read()[:-1])
-list_of_users()
+
+def configure_user():
+    cont = True
+    old_name = input("введите имя пользователя которое хотите поменять: ")
+    new_name = input("введите новое имя: ")
+
+    with open("users.txt", "r", encoding="utf-8") as f:
+        text = f.readlines()
+
+        if "".join(text).find(new_name) == -1:
+            for i in range(len(text)):
+
+                if text[i] == old_name + "\n":
+                    text[i] = new_name + "\n"
+                    print("имя пользователя успешно изменено")
+                    break
+            else:
+                print("старое имя пользователя не найдено")
+                cont = False
+        else:
+            print("новое имя пользователя уже используется")
+            cont = False
+    
+    with open("users.txt", "w", encoding="utf-8") as f:
+        f.writelines(text)
+
+    if cont:
+        try:
+            with open(f"notes\\{old_name}_notes.txt", "r", encoding="utf-8") as f:
+                text = f.read()
+            
+            os.remove(f"notes\\{old_name}_notes.txt")
+
+            with open(f"notes\\{new_name}_notes.txt", "w", encoding="utf-8") as f:
+                f.write(text)
+        except: pass
