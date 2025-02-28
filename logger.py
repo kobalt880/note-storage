@@ -1,7 +1,7 @@
 import datetime as d
 import os
 
-def create_note(author):
+def create_note(author, redact=False, old_note=None):
     date = str(d.datetime.now()).split(".")[0]
     name = input("заголовок заметки: ")
     
@@ -47,10 +47,22 @@ def create_note(author):
         print("некорректный ответ")
         inp = input(">> ")
 
-    if inp == "1":
-        with open(f"notes\\{author}_notes.txt", "a", encoding="utf-8") as f:
-            f.write(note[1:])
+    if not redact:
+        if inp == "1":
+            with open(f"notes\\{author}_notes.txt", "a", encoding="utf-8") as f:
+                f.write(note[1:])
+            print("заметка успешно сохранена")
+    else:
+        if inp == "1":
+            with open(f"notes\\{author}_notes.txt", "r", encoding="utf-8") as f:
+                text = f.read().replace(old_note, note)
 
+            with open(f"notes\\{author}_notes.txt", "w", encoding="utf-8") as f:
+                f.write(text)
+
+            print("заметка успешно изменена")
+                
+                
 def create_user():
     with open("users.txt", "r+", encoding="utf-8") as f:
         name = input("введите имя пользователя: ")
@@ -157,3 +169,25 @@ def find_note(user):
                 print("заметка не найдена")
     except FileNotFoundError:
         print("у вас еще нет заметок")
+
+def redact_note(user):
+    try:
+        with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
+            name = input("введите имя заметки: ")
+
+            text = f.read().split("--------------------------")
+            notes = []
+
+            for e in text:
+                notes.append("--------------------------\n" + '\n'.join(e.split('\n'))[1:])
+
+            for e in notes:
+                if e.split('\n')[1] == name:
+                    create_note(user, redact=True, old_note=e)
+                    break
+            else:
+                print("заметка не найдена")
+    except FileNotFoundError:
+        print("у вас еще нет заметок")
+
+redact_note("шагоход")
