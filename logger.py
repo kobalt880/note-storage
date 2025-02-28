@@ -100,3 +100,24 @@ def configure_user():
             with open(f"notes\\{new_name}_notes.txt", "w", encoding="utf-8") as f:
                 f.write(text)
         except: pass
+
+def delete_user():
+    name = input("введите имя пользователя которого вы хотите удалить\nесли не хотите никого удалять, просто нажмите enter\n>> ")
+
+    if name != "":
+        with open("users.txt", "r", encoding="utf-8") as f:
+            text = f.read()
+
+            if name not in text:
+                print("имя пользователя не найдено")
+            else:
+                print("удалено успешно")
+
+            text = text.replace(name + '\n', '')
+
+        with open("users.txt", "w", encoding="utf-8") as f:
+            f.write(text)
+
+        try:
+            os.remove(f"notes\\{name}_notes.txt")
+        except: pass
