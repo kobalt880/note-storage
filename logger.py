@@ -1,24 +1,62 @@
 import datetime as d
 import os
 
-def create_note(author, redact=False, old_note=None):
-    date = str(d.datetime.now()).split(".")[0]
-    name = input("заголовок заметки: ")
-    
-    print("\nвведите содержимое заметки, чтобы прекратить ввод, напишите 'СТОП' или 'STOP'")
-    content = ""
+def create_note(author, redact=False, old_note=None, to_change=None):
+    def init(num):
+        nonlocal name, content, importance, type
 
-    while True:
-        inp = input(">> ")
+        if num == 0:
+            pass
+        elif num == 1:
+            name = input("заголовок заметки: ")
+        elif num == 2:
+            print("\nвведите содержимое заметки, чтобы прекратить ввод, напишите 'СТОП' или 'STOP'")
+            content = ""
 
-        if inp != "СТОП" and inp != "STOP":
-            content += inp + '\n'
-        else:
-            content = content[:-1]
-            break
+            while True:
+                inp = input(">> ")
+
+                if inp != "СТОП" and inp != "STOP":
+                    content += inp + '\n'
+                else:
+                    content = content[:-1]
+                    break
+        elif num == 3:
+            while True:
+                importance = int(input("важность данной заметки (число от 1 до 10): "))
+                if importance in range(1, 11):
+                    break
+                else:
+                    print("важность не может быть меньше 1 или больше 10")
         
-    importance = input("важность данной заметки: ")
-    type = input("какой тип у этой заметки?: ")
+        elif num == 4:
+            type = input("какой тип у этой заметки?: ")
+        else:
+            raise
+
+
+    if not redact:
+        date = str(d.datetime.now()).split(".")[0]
+        init(1)
+        init(2)
+        init(3)
+        init(4)
+
+    else:
+        name = old_note.split('\n')[1]
+        content = old_note.split('\n\n')[1]
+        date = old_note.split('\n')[-2][6:]
+        importance = old_note.split('\n')[-5][18:]
+        type = old_note.split('\n')[-4][13:]
+
+        while True:
+            inp = input("что хотите поменять в заметке?\n0. ничего (отмена)\n1. имя\n2. содержимое\n3. важность\n4. тип\n>> ")
+
+            try:
+                init(int(inp))
+                break
+            except RuntimeError:
+                print("можно вводить только числа от 0 до 4")
 
 #++++++++++++++++++++++++++
     note = f"""
@@ -55,14 +93,26 @@ def create_note(author, redact=False, old_note=None):
     else:
         if inp == "1":
             with open(f"notes\\{author}_notes.txt", "r", encoding="utf-8") as f:
-                text = f.read().replace(old_note, note)
+                text = f.read().replace(old_note, note[1:])
 
             with open(f"notes\\{author}_notes.txt", "w", encoding="utf-8") as f:
-                f.write(text)
+                print(1, text, sep='\n')
+                f.write(text[2:])
 
             print("заметка успешно изменена")
                 
-                
+
+
+
+
+
+
+
+
+
+
+
+
 def create_user():
     with open("users.txt", "r+", encoding="utf-8") as f:
         name = input("введите имя пользователя: ")
@@ -142,7 +192,7 @@ def get_notes(user):
         for e in text:
             notes.append('\n'.join(e.split('\n'))[1:])
 
-        return notes
+        return notes[1:]
 
 def note_list(user):
     try:    
