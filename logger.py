@@ -134,84 +134,75 @@ def delete_user():
             os.remove(f"notes\\{name}_notes.txt")
         except: pass
 
+def get_notes(user):    
+    with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
+        text = f.read().split("--------------------------")
+        notes = []
+
+        for e in text:
+            notes.append('\n'.join(e.split('\n'))[1:])
+
+        return notes
+
 def note_list(user):
     try:    
-        with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
-            text = f.read().split("--------------------------")
-            notes = []
+        notes = get_notes(user)
 
-            for e in text:
-                notes.append('\n'.join(e.split('\n'))[1:])
+        print("список ваших заметок:")
 
-            print("список ваших заметок:")
+        for i in range(1, len(notes)):
+            print(f"{i}. " + notes[i].split("\n")[0])
 
-            for i in range(1, len(notes)):
-                print(f"{i}. " + notes[i].split("\n")[0])
     except FileNotFoundError:
         print("у вас еще нет заметок")
 
 def find_note(user):
     try:
-        with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
-            name = input("введите имя заметки: ")
+        notes = get_notes(user)
+        name = input("введите имя заметки: ")
 
-            text = f.read().split("--------------------------")
-            notes = []
+        for e in notes:
+            if e.split('\n')[0] == name:
+                print('\n' + e)
+                break
+        else:
+            print("заметка не найдена")
 
-            for e in text:
-                notes.append('\n'.join(e.split('\n'))[1:])
-
-            for e in notes:
-                if e.split('\n')[0] == name:
-                    print('\n' + e)
-                    break
-            else:
-                print("заметка не найдена")
     except FileNotFoundError:
         print("у вас еще нет заметок")
 
 def redact_note(user):
     try:
-        with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
-            name = input("введите имя заметки: ")
+        notes = ["--------------------------\n" + e for e in get_notes(user)]
+        name = input("введите имя заметки: ")
 
-            text = f.read().split("--------------------------")
-            notes = []
+        for e in notes:
+            if e.split('\n')[1] == name:
+                create_note(user, redact=True, old_note=e)
+                break
+        else:
+            print("заметка не найдена")
 
-            for e in text:
-                notes.append("--------------------------\n" + '\n'.join(e.split('\n'))[1:])
-
-            for e in notes:
-                if e.split('\n')[1] == name:
-                    create_note(user, redact=True, old_note=e)
-                    break
-            else:
-                print("заметка не найдена")
     except FileNotFoundError:
         print("у вас еще нет заметок")
 
 def delete_note(user):
     try:
-        with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
-            name = input("введите имя заметки: ")
+        notes = ["--------------------------\n" + e for e in get_notes(user)]
+        name = input("введите имя заметки: ")
 
-            text = f.read().split("--------------------------")
-            notes = []
+        for e in notes:
+            if e.split('\n')[1] == name:
+                with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
+                    text = f.read().replace(e, "")
 
-            for e in text:
-                notes.append("--------------------------\n" + '\n'.join(e.split('\n'))[1:])
+                with open(f"notes\\{user}_notes.txt", "w", encoding="utf-8") as f:
+                    f.write(text)
 
-            for e in notes:
-                if e.split('\n')[1] == name:
-                    with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
-                        text = f.read().replace(e, "")
+                print("заметка успешно удалена")
+                break
+        else:
+            print("заметка не найдена")
 
-                    with open(f"notes\\{user}_notes.txt", "w", encoding="utf-8") as f:
-                        f.write(text)
-
-                    print("заметка успешно удалена")
-                    break
-            else:
-                print("заметка не найдена")
     except FileNotFoundError:
         print("у вас еще нет заметок")
