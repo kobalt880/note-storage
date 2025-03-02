@@ -105,11 +105,6 @@ def create_note(author, redact=False, old_note=None, to_change=None):
 
 
 
-
-
-
-
-
 def find_user(user):
     bool = True
 
@@ -134,7 +129,12 @@ def create_user():
 
 def list_of_users():
     with open("users.txt", "r", encoding="utf-8") as f:
-        print("список доступных пользоваелей:\n" + f.read()[:-1])
+        text = f.read()
+        
+        if text != '':
+            print("список доступных пользоваелей:\n" + text[:-1])
+        else:
+            print('нет доступных пользователей')
 
 def configure_user(user):
     cont = True
@@ -207,8 +207,13 @@ def get_notes(user):
         text = f.read().split("--------------------------")
         notes = []
 
-        for e in text:
-            notes.append('\n'.join(e.split('\n'))[1:])
+        if text != ['']:
+            
+            for e in text:
+                notes.append('\n'.join(e.split('\n'))[1:])
+
+        else:
+            print("у вас еще нет заметок")
 
         return notes[1:]
 
@@ -216,9 +221,10 @@ def note_list(user):
     try:    
         notes = get_notes(user)
 
-        print("список ваших заметок:")
-
         for i in range(len(notes)):
+            if i == 0:
+                 print("список ваших заметок:")
+
             print(f"{i+1}. " + notes[i].split("\n")[0])
 
     except FileNotFoundError:
@@ -231,7 +237,7 @@ def find_note(user):
 
         for e in notes:
             if e.split('\n')[0] == name:
-                print('\n' + e)
+                print('--------------------------\n' + e)
                 break
         else:
             print("заметка не найдена")
