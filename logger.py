@@ -96,8 +96,7 @@ def create_note(author, redact=False, old_note=None, to_change=None):
                 text = f.read().replace(old_note, note[1:])
 
             with open(f"notes\\{author}_notes.txt", "w", encoding="utf-8") as f:
-                print(1, text, sep='\n')
-                f.write(text[2:])
+                f.write(text)
 
             print("заметка успешно изменена")
                 
@@ -111,13 +110,23 @@ def create_note(author, redact=False, old_note=None, to_change=None):
 
 
 
+def find_user(user):
+    bool = True
 
+    with open('users.txt', 'r', encoding='utf-8') as f:
+        for e in f.readlines():
+            if e[:-1] == user:
+                break
+        else:
+            bool = False
+
+    return bool
 
 def create_user():
-    with open("users.txt", "r+", encoding="utf-8") as f:
+    with open("users.txt", "a", encoding="utf-8") as f:
         name = input("введите имя пользователя: ")
 
-        if f.read().find(name) == -1:
+        if not find_user(name) and name != '':
             f.write(name + '\n')
             print("успешно сохранено!")
         else:
@@ -127,9 +136,9 @@ def list_of_users():
     with open("users.txt", "r", encoding="utf-8") as f:
         print("список доступных пользоваелей:\n" + f.read()[:-1])
 
-def configure_user():
+def configure_user(user):
     cont = True
-    old_name = input("введите имя пользователя которое хотите поменять: ")
+    old_name = user
     new_name = input("введите новое имя: ")
 
     with open("users.txt", "r", encoding="utf-8") as f:
@@ -163,22 +172,31 @@ def configure_user():
                 f.write(text)
         except: pass
 
-def delete_user():
-    name = input("введите имя пользователя которого вы хотите удалить\nесли не хотите никого удалять, просто нажмите enter\n>> ")
+def delete_user(user):
+    name = user
 
-    if name != "":
+    while True:
+        inp = input('все ваши заметки будут удалены, точно хотите удалить аккаунт?\n1. да\n2. нет\n>> ')
+        
+        if inp == '1' or inp == '2':
+            break
+        else:
+            print('некорректный ответ')
+
+    if inp == '1':
+        print(1)
         with open("users.txt", "r", encoding="utf-8") as f:
-            text = f.read()
+            text = f.readlines()
 
-            if name not in text:
-                print("имя пользователя не найдено")
-            else:
-                print("удалено успешно")
+            for i in range(len(text)):
+                if text[i] == name + '\n':
+                    text.pop(i)
+                    break
 
-            text = text.replace(name + '\n', '')
+            print("удалено успешно")
 
         with open("users.txt", "w", encoding="utf-8") as f:
-            f.write(text)
+            f.writelines(text)
 
         try:
             os.remove(f"notes\\{name}_notes.txt")
@@ -200,8 +218,8 @@ def note_list(user):
 
         print("список ваших заметок:")
 
-        for i in range(1, len(notes)):
-            print(f"{i}. " + notes[i].split("\n")[0])
+        for i in range(len(notes)):
+            print(f"{i+1}. " + notes[i].split("\n")[0])
 
     except FileNotFoundError:
         print("у вас еще нет заметок")
@@ -256,3 +274,14 @@ def delete_note(user):
 
     except FileNotFoundError:
         print("у вас еще нет заметок")
+
+def change_user(old_user):
+    user = input('введите имя пользователя: ')
+
+    if find_user(user):
+        print('успешно')
+        return user
+
+    else:
+        print('имя пользователя не найдено')
+        return old_user
