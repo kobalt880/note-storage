@@ -9,20 +9,22 @@ while not end:
         indent()
 
         if user == '':
-            inp = input('\n1. создать аккаунт\n2. показать список доступных пользователей\nдля отмены нажмите enter\n>> ')
+            inp = input('\n1. создать аккаунт\n2. показать список доступных пользователей\n3. удалить аккаунт\nдля отмены нажмите enter\n>> ')
             indent()
 
             if inp == '1':
                 create_user()
             elif inp == '2':
                 list_of_users()
+            elif inp == '3':
+                delete_user(user, glob=True)
                 
-        elif find_user(user):
+        elif find_user(user) and input_password(user):
             indent()
             print('успешно')
             break
         else:
-            print('такого имени пользователя не существует')
+            print('не удалось совершить вход')
 
     active_user = True
     while active_user:
@@ -51,7 +53,8 @@ while not end:
         elif inp == '2':
             while True:
                 inp = input('\n1. создать новый аккаунт\n2. показать список доступных пользователей' + 
-                '\n3. сменить аккаунт\n4. изменить имя текущего аккаунта\n5. удалить текущий аккаунт\n6. выйти из раздела "аккаунт"\n>> ')
+                '\n3. сменить аккаунт\n4. изменить имя текущего аккаунта\n5. удалить текущий аккаунт\n6. установить проль\n' + 
+                '7. удалить пароль\n8. выйти из раздела "аккаунт"\n>> ')
 
                 indent()
                 if inp == '1':
@@ -61,12 +64,16 @@ while not end:
                 elif inp == '3':
                     user = change_user(user)
                 elif inp == '4':
-                    configure_user(user)
+                    user = configure_user(user)
                 elif inp == '5':
                     delete_user(user)
                     active_user = False
                     break
                 elif inp == '6':
+                    create_password(user)
+                elif inp == '7':
+                    delete_password(user)
+                elif inp == '8':
                     break
 
         elif inp == '3':

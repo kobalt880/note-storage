@@ -105,6 +105,38 @@ def create_note(author, redact=False, old_note=None, to_change=None):
 
 
 
+
+
+
+def delete_password(user, change=False):
+    if find_password(user):
+        with open('passwords.txt', 'r', encoding='utf-8') as f:
+            text = f.readlines()
+
+            for i in range(len(text)):
+                if text[i][:len(user)+1] == f'{user}:':
+                    text[i] = ''
+
+        with open('passwords.txt', 'w', encoding='utf-8') as f:
+            f.writelines(text)
+    
+            if not change:
+                print('пароль успешно удален')
+    else:
+        print('у вас не установлен пароль')
+
+def find_password(user):
+        bool = False
+        
+        with open('passwords.txt', 'r', encoding='utf-8') as f:
+            text = f.readlines()
+
+            for e in text:
+                if e[:len(user)+1] == f'{user}:':
+                    bool = True
+
+        return bool
+
 def find_user(user):
     bool = True
 
@@ -157,7 +189,7 @@ def configure_user(user):
         else:
             print("новое имя пользователя уже используется")
             cont = False
-    
+        
     with open("users.txt", "w", encoding="utf-8") as f:
         f.writelines(text)
 
@@ -172,16 +204,27 @@ def configure_user(user):
                 f.write(text)
         except: pass
 
-def delete_user(user):
+        return new_name
+    
+        if find_password(old_name):
+            create_password(new_name, change=True, old_user=old_name)
+
+def delete_user(user, glob=False):
     name = user
 
-    while True:
-        inp = input('все ваши заметки будут удалены, точно хотите удалить аккаунт?\n1. да\n2. нет\n>> ')
+    if glob:
+        name = input('введите имя пользователя: ')
+
+    while find_user(name):
+        inp = input('все заметки будут удалены, точно хотите удалить аккаунт?\n1. да\n2. нет\n>> ')
         
         if inp == '1' or inp == '2':
             break
         else:
             print('некорректный ответ')
+    else:
+        inp = None
+        print('имя пользователя не найдено')
 
     if inp == '1':
         print(1)
@@ -193,7 +236,7 @@ def delete_user(user):
                     text.pop(i)
                     break
 
-            print("удалено успешно")
+        print("удалено успешно")
 
         with open("users.txt", "w", encoding="utf-8") as f:
             f.writelines(text)
@@ -201,6 +244,9 @@ def delete_user(user):
         try:
             os.remove(f"notes\\{name}_notes.txt")
         except: pass
+
+        if find_password(user):
+            delete_password(user, change=True)
 
 def get_notes(user):    
     with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
@@ -281,13 +327,77 @@ def delete_note(user):
     except FileNotFoundError:
         print("у вас еще нет заметок")
 
+def get_password(user):
+    with open('passwords.txt', 'r', encoding='utf-8') as f:
+        text = f.readlines()
+
+        for e in text:
+            if e.split(':')[0] == user:
+                return e.split(':')[1]
+
+def create_password(user, change=False, old_user=None):
+    while not find_password(user) and not change:
+        inp = input('если вы забудете свой пароль, вы больше не сможете войти в свой аккаунт. установить пароль?\n1. да\n2. нет\n>> ')
+
+        if inp == '1' or inp == '2':
+            break
+        else:
+            print('некорректный ответ')
+    else:
+        inp = '1'
+
+    if inp == '1':
+        with open('passwords.txt', 'a', encoding='utf-8') as f:
+            if not change:
+                password = input('введите пароль: ')
+            else:
+                password = get_password(old_user)
+
+            if not find_password(user):
+                f.write(f'{user}:{password}\n')
+
+            else:
+                with open('passwords.txt', 'r', encoding='utf-8') as f:
+                    text = f.readlines()
+
+                    for i in range(len(text)):
+
+                        if text[i][:len(user)+1] == f'{user}:':
+                            text[i] = f'{user}:{password}\n'
+
+                    with open('passwords.txt', 'w', encoding='utf-8') as f:
+                        f.writelines(text)
+            if change:
+                delete_password(old_user, change=True)
+            else:
+                print('пароль успешно сохранен')
+
+def input_password(user):
+    bool = True
+    
+    if find_password(user):
+        bool = False
+        password = input('введите пароль: ')
+
+        with open('passwords.txt', 'r', encoding='utf-8') as f:
+            text = f.readlines()
+
+            for e in text:
+                if e[:len(user)+1] == f'{user}:' and e[len(user)+1:-1] == password:
+                    bool = True
+                    break
+            else:
+                print('неверный пароль')
+
+    return bool
+
 def change_user(old_user):
     user = input('введите имя пользователя: ')
 
-    if find_user(user):
+    if find_user(user) and input_password(user):
         print('успешно')
         return user
 
     else:
-        print('имя пользователя не найдено')
+        print('не удалось войти')
         return old_user
