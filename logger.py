@@ -271,7 +271,7 @@ def note_list(user):
             if i == 0:
                  print("список ваших заметок:")
 
-            print(f"{i+1}. " + notes[i].split("\n")[0])
+            print(f"{i+1}. " + notes[i].split("\n")[0] + f' ({'!' * int(notes[i].split('\n')[-5].split(': ')[-1])})')
 
     except FileNotFoundError:
         print("у вас еще нет заметок")
