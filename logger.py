@@ -23,12 +23,15 @@ def create_note(author, redact=False, old_note=None, to_change=None):
                     break
         elif num == 3:
             while True:
-                importance = int(input("важность данной заметки (число от 1 до 10): "))
-                if importance in range(1, 11):
-                    break
-                else:
-                    print("важность не может быть меньше 1 или больше 10")
-        
+                try:
+                    importance = int(input("важность данной заметки (число от 1 до 10): "))
+                    if importance in range(1, 11):
+                        break
+                    else:
+                        print("важность не может быть меньше 1 или больше 10")
+                except ValueError:
+                    print('можно вводить только числа')
+
         elif num == 4:
             type = input("какой тип у этой заметки?: ")
         else:
@@ -259,7 +262,7 @@ def get_notes(user):
                 notes.append('\n'.join(e.split('\n'))[1:])
 
         else:
-            print("у вас еще нет заметок")
+            raise FileNotFoundError
 
         return notes[1:]
 
@@ -401,3 +404,78 @@ def change_user(old_user):
     else:
         print('не удалось войти')
         return old_user
+
+def sorted_note_list(user):
+    def init(num):
+        global val, str_index, str_index, split_str, split_index
+        val = ''
+
+        if num == 1:
+
+            val = input('введите важность: ')
+            
+            str_index = -5
+            split_str = ': '
+            split_index = -1
+
+            try:
+                if int(val) < 1 or int(val) > 10:
+                    print('важность не может быть меньше 1 или больше 10')
+            except ValueError:
+                print('можно вводить только числа') 
+
+        elif num == 2:
+
+            val += input('введите год: ') + '|'
+            val += input('введите номер месяца: ') + '|'
+            val += input('введите день: ')
+
+            splited_val = val.split('|')
+            for i in range(1, len(splited_val)):
+
+                if int(splited_val[i]) <= -1:
+                    splited_val[i] = f'{int(splited_val[i]) * -1}'
+
+                if int(splited_val[i]) <= 10 and len(splited_val[i]) < 2:
+                    splited_val[i] = '0' + splited_val[i]
+                
+                
+
+            val = '-'.join(splited_val)
+            
+            str_index = -2
+            split_str = ' '
+            split_index = 1
+
+            if (len(splited_val[1]) != 2 or len(splited_val[2]) != 2 or int(splited_val[1]) == 0 or int(splited_val[2]) == 0
+            or int(splited_val[1]) > 12 or int(splited_val[2]) > 31):
+                print('неверно введена дата')
+
+
+
+        else:
+            val = None
+
+    try:
+        notes = get_notes(user)
+
+        inp = input('1. найти заметки по важности\n2. найти заметки по дате\n>> ')
+        init(int(inp))
+
+        result = False
+        number = 1
+
+        print()
+        for e in notes:
+
+            if e.split('\n')[str_index].split(split_str)[split_index] == val:
+                print(f'{number}. {e.split('\n')[0]}' + (f' ({'!' * int(e.split('\n')[-5].split(': ')[-1])})' if len(val) > 2 else ''))
+
+                number += 1
+                result = True
+
+        if not result:
+            print('результаты не найдены')
+
+    except FileNotFoundError:
+        print('у вас еще нет заметок')
