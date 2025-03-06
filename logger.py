@@ -121,16 +121,16 @@ def delete_password(user, change=False):
         print('у вас не установлен пароль')
 
 def find_password(user):
-        bool = False
-        
-        with open('passwords.txt', 'r', encoding='utf-8') as f:
-            text = f.readlines()
+    bool = False
+    
+    with open('passwords.txt', 'r', encoding='utf-8') as f:
+        text = f.readlines()
 
-            for e in text:
-                if e[:len(user)+1] == f'{user}:':
-                    bool = True
+        for e in text:
+            if e[:len(user)+1] == f'{user}:':
+                bool = True
 
-        return bool
+    return bool
 
 def find_user(user):
     bool = True
@@ -171,7 +171,7 @@ def configure_user(user):
     with open("users.txt", "r", encoding="utf-8") as f:
         text = f.readlines()
 
-        if "".join(text).find(new_name) == -1:
+        if not find_user(new_name):
             for i in range(len(text)):
 
                 if text[i] == old_name + "\n":
@@ -198,11 +198,13 @@ def configure_user(user):
             with open(f"notes\\{new_name}_notes.txt", "w", encoding="utf-8") as f:
                 f.write(text)
         except: pass
-
-        return new_name
     
         if find_password(old_name):
             create_password(new_name, change=True, old_user=old_name)
+
+        return new_name
+    else:
+        return old_name
 
 def delete_user(user, glob=False):
     name = user
