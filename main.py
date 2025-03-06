@@ -35,7 +35,7 @@ while not end:
             while True:
                 inp = input('\n1. создать заметку\n2. показать список ваших заметок' + 
                 '\n3. показать определенную заметку\n4. изменить заметку\n5. удалить заметку\n6. найти заметки по важности/дате\n'
-                + '7. выйти из раздела "заметки"\n>> ')
+                + '7. отсортировать заметки\n8. выйти из раздела "заметки"\n>> ')
 
                 indent()
                 if inp == '1':
@@ -49,8 +49,10 @@ while not end:
                 elif inp == '5':
                     delete_note(user)
                 elif inp == '6':
-                    sorted_note_list(user)
+                    filtered_note_list(user)
                 elif inp == '7':
+                    sort_notes(user)
+                elif inp == '8':
                     break
 
         elif inp == '2':

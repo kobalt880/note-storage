@@ -102,14 +102,6 @@ def create_note(author, redact=False, old_note=None, to_change=None):
                 f.write(text)
 
             print("заметка успешно изменена")
-                
-
-
-
-
-
-
-
 
 def delete_password(user, change=False):
     if find_password(user):
@@ -251,7 +243,7 @@ def delete_user(user, glob=False):
         if find_password(user):
             delete_password(user, change=True)
 
-def get_notes(user):    
+def get_notes(user):
     with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
         text = f.read().split("--------------------------")
         notes = []
@@ -405,7 +397,7 @@ def change_user(old_user):
         print('не удалось войти')
         return old_user
 
-def sorted_note_list(user):
+def filtered_note_list(user):
     def init(num):
         global val, str_index, str_index, split_str, split_index
         val = ''
@@ -430,15 +422,20 @@ def sorted_note_list(user):
             val += input('введите номер месяца: ') + '|'
             val += input('введите день: ')
 
-            splited_val = val.split('|')
-            for i in range(1, len(splited_val)):
 
-                if int(splited_val[i]) <= -1:
-                    splited_val[i] = f'{int(splited_val[i]) * -1}'
+            try:
+                splited_val = val.split('|')
+                for i in range(1, len(splited_val)):
 
-                if int(splited_val[i]) <= 10 and len(splited_val[i]) < 2:
-                    splited_val[i] = '0' + splited_val[i]
-                
+                    if int(splited_val[i]) <= -1:
+                        splited_val[i] = f'{int(splited_val[i]) * -1}'
+
+                    if int(splited_val[i]) <= 10 and len(splited_val[i]) < 2:
+                        splited_val[i] = '0' + splited_val[i]
+
+                err = False
+            except:
+                err = True            
                 
 
             val = '-'.join(splited_val)
@@ -448,10 +445,8 @@ def sorted_note_list(user):
             split_index = 1
 
             if (len(splited_val[1]) != 2 or len(splited_val[2]) != 2 or int(splited_val[1]) == 0 or int(splited_val[2]) == 0
-            or int(splited_val[1]) > 12 or int(splited_val[2]) > 31):
+            or int(splited_val[1]) > 12 or int(splited_val[2]) > 31) or err:
                 print('неверно введена дата')
-
-
 
         else:
             val = None
@@ -479,3 +474,103 @@ def sorted_note_list(user):
 
     except FileNotFoundError:
         print('у вас еще нет заметок')
+
+def sort_notes(user):
+    def calculate_date(str):
+        nonlocal att
+
+        sum = 0
+        string = str.split('-')
+        prod = 365
+
+        for i in range(len(string)):
+
+            if i == 1:
+                for i2 in range(1, int(string[i])):
+                    month = 31 if i2 in [1, 3, 5, 7, 8, 10, 12] else 30 if i2 != 2 else 28
+                    sum += month
+                prod = 1
+            
+            sum += int(string[i]) * prod
+        
+        return sum
+
+    def init(num):
+        global val, str_index, split_str, split_index
+        val = None
+
+        if num == 1:
+            str_index = -5
+            split_str = ': '
+            split_index = -1
+
+        elif num == 2:
+            str_index = -2
+            split_str = ' '
+            split_index = 1
+
+        elif num == 3:
+            str_index = 0
+            split_str = None
+            split_index = 0
+
+        else:
+            raise ValueError
+
+        val = [e[str_index].split(split_str)[split_index] for e in [e.split('\n') for e in get_notes(user)]]
+
+        if num == 2:
+            val = [calculate_date(e) for e in val]
+            val.sort()
+
+        elif num == 3:
+            val = [ord(e[0]) for e in val]
+            val.sort()
+
+        elif num == 1:
+            val = [int(e) for e in val]
+            val.sort()
+            val.reverse()
+
+    try:
+        notes = get_notes(user)
+
+        inp = int(input("1. отсортировать заметки по важности\n2. отсортировать заметки по дате\n" +
+                        "3. отсортировать заметки по имени (по алфавиту)\n>> "))
+        init(inp)
+        
+        exists_elem = []
+        number = 1
+        text = ''
+
+        print('\n')
+        for e in val:
+            for e2 in notes:
+                name = e2.split('\n')[0]
+
+                if inp == 1:
+                    att = int(e2.split('\n')[str_index].split(split_str)[split_index])
+
+                elif inp == 2:
+                    att = calculate_date(e2.split('\n')[str_index].split(split_str)[split_index])
+
+                elif inp == 3:
+                    att = ord(name[0])
+
+
+                if name not in exists_elem and att == e:
+                    exists_elem.append(name)
+
+                    number += 1
+                    text += '--------------------------\n' + e2
+
+        with open(f'notes\\{user}_notes.txt', 'w', encoding='utf-8') as f:
+            f.write(text)
+
+        print('заметки успешно отсортированы')
+
+
+    except FileNotFoundError:
+        print('у вас еще нет заметок')
+    except ValueError:
+        print('неверно введены данные')
