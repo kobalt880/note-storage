@@ -242,8 +242,8 @@ def delete_user(user, glob=False):
             os.remove(f"notes\\{name}_notes.txt")
         except: pass
 
-        if find_password(user):
-            delete_password(user, change=True)
+        if find_password(name):
+            delete_password(name, change=True)
 
 def get_notes(user):
     with open(f"notes\\{user}_notes.txt", "r", encoding="utf-8") as f:
